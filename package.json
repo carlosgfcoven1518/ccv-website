@@ -1,0 +1,27 @@
+{
+  "name": "ccv-website",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/studio"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @ccv/web",
+    "dev:web": "npm run dev --workspace @ccv/web",
+    "dev:studio": "npm run dev --workspace @ccv/studio",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "eslint-config-next": "16.2.12",
+    "prettier": "3.9.6",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

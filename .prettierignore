@@ -1,0 +1,7 @@
+node_modules
+.next
+out
+dist
+.sanity
+package-lock.json
+docs/CODEX_BUILD_SPEC_CCV_v1.0.md
