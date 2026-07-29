@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "sanity dev",
     "build": "sanity build",
+    "schema:validate": "sanity schemas validate",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
