@@ -1,0 +1,31 @@
+.section {
+  color: var(--section-text);
+  background: var(--section-surface);
+}
+
+.light {
+  --section-surface: var(--surface-primary);
+  --section-text: var(--text-primary);
+}
+
+.offWhite {
+  --section-surface: var(--surface-secondary);
+  --section-text: var(--text-primary);
+}
+
+.navy {
+  --section-surface: var(--surface-inverse);
+  --section-text: var(--text-inverse);
+}
+
+.compact {
+  padding-block: var(--section-block-sm);
+}
+
+.standard {
+  padding-block: var(--section-block-md);
+}
+
+.spacious {
+  padding-block: var(--section-block-lg);
+}

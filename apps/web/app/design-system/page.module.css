@@ -1,0 +1,123 @@
+.cleanList {
+  list-style: none;
+}
+
+.tokenItem {
+  display: grid;
+  grid-template-columns: var(--space-12) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  padding-block: var(--space-6);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.tokenItem code {
+  grid-column: 2;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.swatch {
+  grid-row: span 2;
+  width: var(--space-12);
+  aspect-ratio: 1;
+  border: var(--border-width) solid var(--border-strong);
+}
+
+.navy {
+  background: var(--color-navy);
+}
+
+.white {
+  background: var(--color-white);
+}
+
+.offWhite {
+  background: var(--color-off-white);
+}
+
+.accent {
+  background: var(--color-accent);
+}
+
+.spaceScale {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.spaceItem {
+  display: grid;
+  grid-template-columns: minmax(var(--space-16), 1fr) minmax(12rem, 2fr);
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.spaceBar {
+  display: block;
+  height: var(--space-2);
+  background: var(--color-navy);
+}
+
+.spaceBar[data-space='4'] {
+  width: var(--space-4);
+}
+
+.spaceBar[data-space='8'] {
+  width: var(--space-8);
+}
+
+.spaceBar[data-space='12'] {
+  width: var(--space-12);
+}
+
+.spaceBar[data-space='16'] {
+  width: var(--space-16);
+}
+
+.decorativeType {
+  color: var(--color-accent);
+  font-family: var(--font-body);
+  font-size: var(--text-display);
+  font-weight: 100;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+}
+
+.gridSample {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-8);
+  border-block-start: var(--border-width) solid var(--border-strong);
+}
+
+.motionSample {
+  display: inline-flex;
+  min-height: var(--space-16);
+  padding: var(--space-4) var(--space-6);
+  align-items: center;
+  align-self: flex-start;
+  color: var(--color-navy);
+  background: var(--color-white);
+  border: var(--border-width) solid var(--border-strong);
+  transition:
+    color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.motionSample:hover,
+.motionSample:focus-within {
+  color: var(--color-white);
+  background: var(--color-navy);
+}
+
+@media (max-width: 39.99rem) {
+  .spaceItem {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionSample {
+    transition: none;
+  }
+}

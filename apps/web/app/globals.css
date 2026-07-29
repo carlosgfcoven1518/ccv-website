@@ -1,50 +1,103 @@
-@font-face {
-  font-family: 'Syne';
-  src: url('/fonts/syne-bold.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Outfit';
-  src: url('/fonts/outfit-light.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Outfit';
-  src: url('/fonts/outfit-thin.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 100;
-  font-display: swap;
-}
-
 :root {
-  --navy: #0e1b2c;
-  --white: #ffffff;
-  --off-white: #f7f7f5;
-  --text: #0e1b2c;
-  --muted: #5f6873;
-  --line: rgba(14, 27, 44, 0.16);
+  /* Brand */
+  --color-navy: #0e1b2c;
+  --color-white: #ffffff;
+  --color-accent: #01eb2c;
 
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Outfit', sans-serif;
+  /* Functional neutrals */
+  --color-off-white: #f7f7f5;
+  --color-text: var(--color-navy);
+  --color-text-muted: #5f6873;
+  --color-line: rgb(14 27 44 / 16%);
+  --color-line-strong: rgb(14 27 44 / 32%);
+  --color-line-inverse: rgb(255 255 255 / 24%);
 
+  /* Interactive states */
+  --color-accent-hover: #01c926;
+  --color-accent-active: #019d20;
+  --color-focus-ring: var(--color-accent);
+  --color-selection-bg: var(--color-accent);
+  --color-selection-text: var(--color-navy);
+
+  /* Semantic aliases */
+  --surface-primary: var(--color-white);
+  --surface-secondary: var(--color-off-white);
+  --surface-inverse: var(--color-navy);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-muted);
+  --text-inverse: var(--color-white);
+  --border-subtle: var(--color-line);
+  --border-strong: var(--color-line-strong);
+
+  /* Local fonts use safe fallbacks until approved WOFF2 files are installed. */
+  --font-display: 'Syne', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  --font-body:
+    'Outfit', 'Avenir Next', Avenir, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Fluid type scale */
+  --text-xs: clamp(0.75rem, 0.72rem + 0.12vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.84rem + 0.16vw, 0.9375rem);
+  --text-body: clamp(1.0625rem, 1.01rem + 0.24vw, 1.25rem);
+  --text-lead: clamp(1.25rem, 1.12rem + 0.55vw, 1.625rem);
+  --text-h3: clamp(1.5rem, 1.28rem + 0.95vw, 2.125rem);
+  --text-h2: clamp(2.25rem, 1.66rem + 2.55vw, 4.5rem);
+  --text-h1: clamp(3rem, 1.68rem + 5.65vw, 7.75rem);
+  --text-display: clamp(3.5rem, 1.45rem + 8.75vw, 11rem);
+
+  /* Reading measures */
+  --measure-narrow: 45ch;
+  --measure-body: 62ch;
+  --measure-article: 72ch;
+  --measure-wide: 84ch;
+
+  /* Spacing */
+  --space-0: 0;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
+  --space-10: 2.5rem;
   --space-12: 3rem;
   --space-16: 4rem;
+  --space-20: 5rem;
   --space-24: 6rem;
+  --space-32: 8rem;
+  --space-40: 10rem;
 
-  --content-width: 80rem;
-  --reading-width: 72ch;
+  /* Layout */
+  --gutter-inline: clamp(1.25rem, 3.5vw, 4.5rem);
+  --section-block-sm: clamp(4rem, 8vw, 7rem);
+  --section-block-md: clamp(5.5rem, 11vw, 10rem);
+  --section-block-lg: clamp(7rem, 15vw, 14rem);
+  --container-max: 90rem;
+  --container-wide: 105rem;
+  --container-reading: 72ch;
+  --grid-column-gap: clamp(1rem, 2vw, 2rem);
+
+  /* Surfaces */
+  --border-width: 1px;
+  --radius-none: 0;
+  --radius-control: 0.25rem;
+  --radius-media: 0;
+
+  /* Motion */
+  --duration-instant: 80ms;
+  --duration-fast: 160ms;
+  --duration-base: 280ms;
+  --duration-slow: 520ms;
+  --duration-intro-max: 1200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Media */
+  --ratio-source: 2048 / 1117;
+  --ratio-wide: 16 / 9;
+  --ratio-editorial: 4 / 3;
+  --ratio-portrait: 3 / 4;
 }
 
 *,
@@ -54,12 +107,78 @@
 }
 
 html {
-  color: var(--text);
-  background: var(--off-white);
+  color: var(--text-primary);
+  background: var(--surface-secondary);
   font-family: var(--font-body);
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
 }
 
 body {
+  min-width: 20rem;
   min-height: 100vh;
   margin: 0;
+  background: var(--surface-primary);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+img,
+picture {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  color: var(--color-selection-text);
+  background: var(--color-selection-bg);
+}
+
+:focus-visible {
+  outline: 0.1875rem solid var(--color-focus-ring);
+  outline-offset: var(--space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

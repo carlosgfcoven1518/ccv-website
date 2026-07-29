@@ -1,0 +1,110 @@
+.frame {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-navy);
+  border-radius: var(--radius-media);
+}
+
+.source {
+  aspect-ratio: var(--ratio-source);
+}
+
+.landscape,
+.wide {
+  aspect-ratio: var(--ratio-wide);
+}
+
+.editorial {
+  aspect-ratio: var(--ratio-editorial);
+}
+
+.portrait {
+  aspect-ratio: var(--ratio-portrait);
+}
+
+.image {
+  object-fit: var(--image-fit);
+  object-position: var(--image-position);
+}
+
+.cover {
+  --image-fit: cover;
+}
+
+.contain {
+  --image-fit: contain;
+}
+
+.center {
+  --image-position: center;
+}
+
+.top {
+  --image-position: top;
+}
+
+.bottom {
+  --image-position: bottom;
+}
+
+.left {
+  --image-position: left;
+}
+
+.right {
+  --image-position: right;
+}
+
+.navySoft::after,
+.navyStrong::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color-navy);
+  content: '';
+}
+
+.navySoft::after {
+  opacity: 0.28;
+}
+
+.navyStrong::after {
+  opacity: 0.56;
+}
+
+.placeholder {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--color-navy);
+  background: var(--color-off-white);
+}
+
+.placeholder::before {
+  position: absolute;
+  inset: var(--space-6);
+  border: var(--border-width) solid var(--color-line-strong);
+  content: '';
+}
+
+.placeholder span {
+  position: relative;
+  max-width: var(--measure-narrow);
+  padding: var(--space-4);
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  text-align: center;
+}
+
+@container (max-width: 30rem) {
+  .editorial {
+    aspect-ratio: var(--ratio-wide);
+  }
+}

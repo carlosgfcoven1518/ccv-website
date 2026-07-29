@@ -1,0 +1,33 @@
+.divider {
+  width: 100%;
+  height: var(--border-width);
+  border: 0;
+}
+
+.subtle {
+  background: var(--border-subtle);
+}
+
+.strong {
+  background: var(--border-strong);
+}
+
+.inverse {
+  background: var(--color-line-inverse);
+}
+
+.accent {
+  background: var(--color-accent);
+}
+
+.sm {
+  margin-block: var(--space-6);
+}
+
+.md {
+  margin-block: var(--space-12);
+}
+
+.lg {
+  margin-block: var(--space-20);
+}

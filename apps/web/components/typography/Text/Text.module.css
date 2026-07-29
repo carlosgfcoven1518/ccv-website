@@ -1,0 +1,49 @@
+.text {
+  font-family: var(--font-body);
+  font-weight: 300;
+  text-wrap: pretty;
+}
+
+.size-small {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.size-body {
+  font-size: var(--text-body);
+  line-height: 1.62;
+}
+
+.size-lead {
+  font-size: var(--text-lead);
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+}
+
+.tone-default {
+  color: var(--text-primary);
+}
+
+.tone-muted {
+  color: var(--text-secondary);
+}
+
+.tone-inverse {
+  color: var(--text-inverse);
+}
+
+.measure-narrow {
+  max-width: var(--measure-narrow);
+}
+
+.measure-body {
+  max-width: var(--measure-body);
+}
+
+.measure-article {
+  max-width: var(--measure-article);
+}
+
+.measure-none {
+  max-width: none;
+}
