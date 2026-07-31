@@ -39,6 +39,7 @@ const articleSummaryFields = `
 const articleSummaryProjection = `{${articleSummaryFields}}`;
 
 const publishedArticleFilter = `_type == "article"
+  && !(_id in path("drafts.**"))
   && defined(slug.current)
   && defined(publishedAt)
   && publishedAt <= now()`;
@@ -75,6 +76,7 @@ export const publishedArticleSlugsQuery = `*[
 export const featuredArticlesQuery = `*[
   ${publishedArticleFilter}
   && featured == true
+  && coalesce(noindex, false) == false
 ] | order(publishedAt desc) [0...3] ${articleSummaryProjection}`;
 
 export const categoriesQuery = `*[
@@ -94,6 +96,7 @@ export const authorsQuery = `*[
 export const siteSettingsQuery = `*[
   _type == "siteSettings"
   && _id == "siteSettings"
+  && !(_id in path("drafts.**"))
 ][0] {
   _id,
   siteName,

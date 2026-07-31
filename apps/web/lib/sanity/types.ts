@@ -128,6 +128,20 @@ export interface SiteSettings {
   locale: 'es-MX';
 }
 
+export interface PublicSiteSettings {
+  _id: 'siteSettings';
+  siteName?: string;
+  siteDescription?: string;
+  siteUrl?: string;
+  defaultSeoTitle?: string;
+  defaultSeoDescription?: string;
+  defaultSocialImage?: SanityImage;
+  contactEmail?: string;
+  linkedInUrl?: string;
+  legalName?: string;
+  locale?: 'es-MX';
+}
+
 export type ServiceAvailabilityStatus = 'active' | 'retired';
 
 export interface TitledDescription {
@@ -255,9 +269,15 @@ export interface HomePage {
   operatingModel: HomeOperatingModel;
   evidence: HomeEvidence | null;
   aboutCcv: HomeAboutCcv;
-  specialization: HomeSpecialization;
+  specialization: HomeSpecialization | null;
   analysisIntro: HomeAnalysisIntro;
   contactIntro: HomeContactIntro;
+}
+
+export interface HomePublicationState {
+  heroTitle: string;
+  isReady: boolean;
+  shouldIndex: boolean;
 }
 
 export interface ServicePageMetadata {

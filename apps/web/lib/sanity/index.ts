@@ -7,10 +7,14 @@ export {
   isValidServiceSlug,
   normalizeCommercialService,
   normalizeCommercialServiceSummary,
+  normalizeFeaturedArticles,
   normalizeHomePage,
+  normalizeSiteSettings,
   normalizeServicePageMetadata,
   normalizeServiceSlugs,
   toServiceStaticParams,
+  resolveHomePublicationState,
+  restrictFeaturedServiceToExport,
 } from './normalizers';
 export {
   articleBySlugQuery,
@@ -27,10 +31,12 @@ export {
 } from './queries';
 export {
   getFeaturedService,
+  getFeaturedArticles,
   getHomePage,
   getPublishedActiveServiceBySlug,
   getPublishedActiveServiceSlugs,
   getServicePageMetadata,
+  getSiteSettings,
 } from './read';
 export type {
   Article,
@@ -45,6 +51,7 @@ export type {
   EditorialStatus,
   PortableTextBlock,
   PublicEvidenceItem,
+  PublicSiteSettings,
   SanityImage,
   ServiceAudience,
   ServiceAvailabilityStatus,
@@ -53,5 +60,6 @@ export type {
   ServiceStage,
   SiteSettings,
   HomePage,
+  HomePublicationState,
   TitledDescription,
 } from './types';

@@ -1,0 +1,17 @@
+.titledList {
+  padding-inline-start: var(--space-6);
+}
+
+.titledList > li {
+  padding-inline-start: var(--space-2);
+}
+
+.titledList > li::marker {
+  color: var(--color-accent-active);
+}
+
+.contactLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+}

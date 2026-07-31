@@ -4,10 +4,16 @@ import test from 'node:test';
 import {
   HOME_HERO_TITLE_FALLBACK,
   normalizeCommercialService,
+  normalizeFeaturedArticles,
   normalizeHomePage,
+  normalizeSiteSettings,
   normalizeServiceSlugs,
+  resolveHomePublicationState,
+  restrictFeaturedServiceToExport,
   toServiceStaticParams,
 } from './normalizers.ts';
+import { featuredArticlesQuery, homePageQuery } from './queries.ts';
+import { withReadFallback } from './safeRead.ts';
 
 const titledItem = {
   _key: 'item-1',
@@ -72,6 +78,18 @@ const homeFixture = {
       { ...titledItem, _key: 'item-3' },
     ],
   },
+  evidence: {
+    heading: 'Evidencia técnica',
+    intro: 'Encuadre técnico.',
+    items: [
+      {
+        _key: 'home-evidence-1',
+        title: 'Evidencia pública',
+        statement: 'Descripción pública de prueba.',
+        internalVerificationNote: 'No debe llegar a la proyección pública.',
+      },
+    ],
+  },
   aboutCcv: {
     heading: 'CCV técnico',
     description: 'Descripción técnica.',
@@ -90,6 +108,53 @@ const homeFixture = {
     instruction: 'Instrucción técnica.',
   },
 };
+
+const siteSettingsFixture = {
+  _id: 'siteSettings',
+  siteName: 'CCV',
+  siteDescription: 'Descripción editorial técnica.',
+  siteUrl: 'https://example.com',
+  defaultSeoTitle: 'Título SEO técnico',
+  defaultSeoDescription: 'Descripción SEO técnica.',
+  contactEmail: 'contacto@example.com',
+  linkedInUrl: 'https://www.linkedin.com/company/example',
+  locale: 'es-MX',
+  internalNotes: 'No debe llegar a la proyección pública.',
+};
+
+const authorFixture = {
+  _id: 'author-fixture',
+  name: 'Autor técnico',
+  slug: 'autor-tecnico',
+  role: 'Rol técnico',
+  shortBio: 'Biografía técnica de prueba.',
+  email: 'privado@example.com',
+  credentials: ['Dato interno'],
+};
+
+const categoryFixture = {
+  _id: 'category-fixture',
+  title: 'Categoría técnica',
+  slug: 'categoria-tecnica',
+  order: 0,
+};
+
+function articleFixture(id, publishedAt, overrides = {}) {
+  return {
+    _id: id,
+    title: `Artículo ${id}`,
+    slug: `articulo-${id.replaceAll('.', '-')}`,
+    contentType: 'analysis',
+    excerpt: 'Resumen editorial técnico.',
+    author: authorFixture,
+    categories: [categoryFixture],
+    publishedAt,
+    featured: true,
+    noindex: false,
+    internalNotes: 'No debe llegar a la proyección pública.',
+    ...overrides,
+  };
+}
 
 test('normaliza únicamente slugs públicos válidos y elimina duplicados', () => {
   assert.deepEqual(
@@ -141,4 +206,109 @@ test('aplica el H1 de seguridad y anula una referencia destacada inválida', () 
   assert.ok(home);
   assert.equal(home.heroTitle, HOME_HERO_TITLE_FALLBACK);
   assert.equal(home.featuredService, null);
+});
+
+test('solo conserva el Servicio destacado si forma parte del mismo export', () => {
+  const home = normalizeHomePage({
+    ...homeFixture,
+    featuredService: activeServiceFixture,
+  });
+
+  assert.ok(home?.featuredService);
+  assert.equal(restrictFeaturedServiceToExport(home, []).featuredService, null);
+  assert.equal(
+    restrictFeaturedServiceToExport(home, [activeServiceFixture.slug])
+      .featuredService?.slug,
+    activeServiceFixture.slug,
+  );
+});
+
+test('acepta una Home publicada válida y omite Especialización ausente', () => {
+  const home = normalizeHomePage({ ...homeFixture, specialization: undefined });
+
+  assert.ok(home);
+  assert.equal(home.specialization, null);
+  assert.equal(home.heroTitle, HOME_HERO_TITLE_FALLBACK);
+});
+
+test('la ausencia de Home publicada produce un resultado seguro', () => {
+  assert.equal(normalizeHomePage(null), null);
+  assert.equal(normalizeHomePage(undefined), null);
+});
+
+test('usa el fallback ante ausencia de configuración o fallo de lectura', async () => {
+  assert.equal(await withReadFallback(async () => null, null), null);
+  assert.equal(
+    await withReadFallback(async () => {
+      throw new Error('Fallo técnico simulado');
+    }, HOME_HERO_TITLE_FALLBACK),
+    HOME_HERO_TITLE_FALLBACK,
+  );
+});
+
+test('excluye borradores y noindex y limita destacados a tres', () => {
+  const articles = normalizeFeaturedArticles([
+    articleFixture('older', '2024-01-01T00:00:00.000Z'),
+    articleFixture('newest', '2025-04-01T00:00:00.000Z'),
+    articleFixture('middle', '2025-03-01T00:00:00.000Z'),
+    articleFixture('fourth', '2025-02-01T00:00:00.000Z'),
+    articleFixture('drafts.hidden', '2025-05-01T00:00:00.000Z'),
+    articleFixture('hidden', '2025-06-01T00:00:00.000Z', {
+      noindex: true,
+    }),
+  ]);
+
+  assert.equal(articles.length, 3);
+  assert.deepEqual(
+    articles.map((article) => article._id),
+    ['newest', 'middle', 'fourth'],
+  );
+  assert.equal('internalNotes' in articles[0], false);
+  assert.equal('email' in articles[0].author, false);
+  assert.equal('credentials' in articles[0].author, false);
+});
+
+test('normaliza Site Settings incompleto sin inventar datos', () => {
+  const settings = normalizeSiteSettings({
+    _id: 'siteSettings',
+    siteName: 'CCV',
+    siteUrl: 'valor-inválido',
+    contactEmail: 'valor-inválido',
+    internalNotes: 'No debe salir.',
+  });
+
+  assert.ok(settings);
+  assert.equal(settings.siteName, 'CCV');
+  assert.equal(settings.siteUrl, undefined);
+  assert.equal(settings.contactEmail, undefined);
+  assert.equal('internalNotes' in settings, false);
+});
+
+test('solo permite indexar una Home válida con un canal de contacto publicado', () => {
+  const home = normalizeHomePage(homeFixture);
+  const settings = normalizeSiteSettings(siteSettingsFixture);
+
+  assert.ok(home);
+  assert.ok(settings);
+  assert.deepEqual(resolveHomePublicationState(null, settings), {
+    heroTitle: HOME_HERO_TITLE_FALLBACK,
+    isReady: false,
+    shouldIndex: false,
+  });
+  assert.equal(resolveHomePublicationState(home, null).shouldIndex, false);
+  assert.equal(resolveHomePublicationState(home, settings).shouldIndex, true);
+});
+
+test('las proyecciones públicas excluyen campos internos', () => {
+  const home = normalizeHomePage(homeFixture);
+  const settings = normalizeSiteSettings(siteSettingsFixture);
+
+  assert.ok(home?.evidence);
+  assert.ok(settings);
+  assert.equal('internalVerificationNote' in home.evidence.items[0], false);
+  assert.equal('internalNotes' in settings, false);
+  assert.equal(homePageQuery.includes('internalVerificationNote'), false);
+  assert.equal(featuredArticlesQuery.includes('internalNotes'), false);
+  assert.match(featuredArticlesQuery, /coalesce\(noindex, false\) == false/);
+  assert.match(featuredArticlesQuery, /\[0\.\.\.3\]/);
 });

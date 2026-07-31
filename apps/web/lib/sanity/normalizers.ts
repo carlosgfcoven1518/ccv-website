@@ -1,4 +1,7 @@
 import type {
+  ArticleSummary,
+  AuthorSummary,
+  Category,
   CommercialService,
   CommercialServiceSummary,
   HomeAboutCcv,
@@ -9,7 +12,9 @@ import type {
   HomeEvidence,
   HomeOperatingModel,
   HomePage,
+  HomePublicationState,
   HomeSpecialization,
+  PublicSiteSettings,
   PublicEvidenceItem,
   SanityImage,
   ServiceAudience,
@@ -25,6 +30,13 @@ export const HOME_HERO_TITLE_FALLBACK =
 export const EMPTY_SERVICE_EXPORT_SLUG = '_template';
 
 const SERVICE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const CONTENT_TYPES = new Set([
+  'analysis',
+  'methodology',
+  'perspective',
+  'case',
+]);
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -45,6 +57,30 @@ function optionalString(value: unknown): string | undefined {
   return requiredString(value) ?? undefined;
 }
 
+function optionalPublicUrl(value: unknown): string | undefined {
+  const candidate = optionalString(value);
+
+  if (!candidate) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(candidate);
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.toString()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function optionalEmail(value: unknown): string | undefined {
+  const candidate = optionalString(value);
+  return candidate && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)
+    ? candidate
+    : undefined;
+}
+
 function keyFrom(value: UnknownRecord): string | undefined {
   return optionalString(value._key);
 }
@@ -62,6 +98,177 @@ function normalizeImage(value: unknown): SanityImage | undefined {
   }
 
   return value as unknown as SanityImage;
+}
+
+function normalizeAuthorSummary(value: unknown): AuthorSummary | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = requiredString(value._id);
+  const name = requiredString(value.name);
+  const slug = requiredString(value.slug);
+  const role = requiredString(value.role);
+  const shortBio = requiredString(value.shortBio);
+
+  if (
+    !id ||
+    id.startsWith('drafts.') ||
+    !name ||
+    !slug ||
+    !PUBLIC_SLUG_PATTERN.test(slug) ||
+    !role ||
+    !shortBio
+  ) {
+    return null;
+  }
+
+  const image = normalizeImage(value.image);
+  const imageAlt = image ? optionalString(value.imageAlt) : undefined;
+
+  return {
+    _id: id,
+    name,
+    slug,
+    role,
+    shortBio,
+    image: image && imageAlt ? image : undefined,
+    imageAlt: image && imageAlt ? imageAlt : undefined,
+  };
+}
+
+function normalizeCategory(value: unknown): Category | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = requiredString(value._id);
+  const title = requiredString(value.title);
+  const slug = requiredString(value.slug);
+  const order = value.order;
+
+  if (
+    !id ||
+    id.startsWith('drafts.') ||
+    !title ||
+    !slug ||
+    !PUBLIC_SLUG_PATTERN.test(slug) ||
+    !Number.isInteger(order) ||
+    (order as number) < 0
+  ) {
+    return null;
+  }
+
+  return {
+    _id: id,
+    title,
+    slug,
+    description: optionalString(value.description),
+    order: order as number,
+  };
+}
+
+function normalizeArticleSummary(value: unknown): ArticleSummary | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = requiredString(value._id);
+  const title = requiredString(value.title);
+  const slug = requiredString(value.slug);
+  const excerpt = requiredString(value.excerpt);
+  const contentType = requiredString(value.contentType);
+  const publishedAt = requiredString(value.publishedAt);
+  const publishedTime = publishedAt ? Date.parse(publishedAt) : Number.NaN;
+  const author = normalizeAuthorSummary(value.author);
+  const categories = Array.isArray(value.categories)
+    ? value.categories
+        .map(normalizeCategory)
+        .filter((item): item is Category => item !== null)
+    : [];
+
+  if (
+    !id ||
+    id.startsWith('drafts.') ||
+    !title ||
+    !slug ||
+    !PUBLIC_SLUG_PATTERN.test(slug) ||
+    !excerpt ||
+    !contentType ||
+    !CONTENT_TYPES.has(contentType) ||
+    !publishedAt ||
+    !Number.isFinite(publishedTime) ||
+    publishedTime > Date.now() ||
+    !author ||
+    categories.length === 0 ||
+    value.featured !== true ||
+    value.noindex === true
+  ) {
+    return null;
+  }
+
+  const coverImage = normalizeImage(value.coverImage);
+  const coverImageAlt = coverImage
+    ? optionalString(value.coverImageAlt)
+    : undefined;
+  const readingTime = value.readingTime;
+
+  return {
+    _id: id,
+    title,
+    slug,
+    contentType: contentType as ArticleSummary['contentType'],
+    excerpt,
+    coverImage: coverImage && coverImageAlt ? coverImage : undefined,
+    coverImageAlt: coverImage && coverImageAlt ? coverImageAlt : undefined,
+    author,
+    categories,
+    publishedAt,
+    updatedAt: optionalString(value.updatedAt),
+    readingTime:
+      Number.isInteger(readingTime) && (readingTime as number) > 0
+        ? (readingTime as number)
+        : undefined,
+    featured: true,
+    noindex: false,
+  };
+}
+
+export function normalizeFeaturedArticles(value: unknown): ArticleSummary[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map(normalizeArticleSummary)
+    .filter((item): item is ArticleSummary => item !== null)
+    .sort(
+      (left, right) =>
+        Date.parse(right.publishedAt) - Date.parse(left.publishedAt),
+    )
+    .slice(0, 3);
+}
+
+export function normalizeSiteSettings(
+  value: unknown,
+): PublicSiteSettings | null {
+  if (!isRecord(value) || value._id !== 'siteSettings') {
+    return null;
+  }
+
+  return {
+    _id: 'siteSettings',
+    siteName: optionalString(value.siteName),
+    siteDescription: optionalString(value.siteDescription),
+    siteUrl: optionalPublicUrl(value.siteUrl),
+    defaultSeoTitle: optionalString(value.defaultSeoTitle),
+    defaultSeoDescription: optionalString(value.defaultSeoDescription),
+    defaultSocialImage: normalizeImage(value.defaultSocialImage),
+    contactEmail: optionalEmail(value.contactEmail),
+    linkedInUrl: optionalPublicUrl(value.linkedInUrl),
+    legalName: optionalString(value.legalName),
+    locale: value.locale === 'es-MX' ? 'es-MX' : undefined,
+  };
 }
 
 function normalizeTitledDescription(value: unknown): TitledDescription | null {
@@ -455,7 +662,6 @@ export function normalizeHomePage(value: unknown): HomePage | null {
     !ecosystem ||
     !operatingModel ||
     !aboutCcv ||
-    !specialization ||
     !analysisIntro ||
     !contactIntro
   ) {
@@ -477,6 +683,36 @@ export function normalizeHomePage(value: unknown): HomePage | null {
     specialization,
     analysisIntro,
     contactIntro,
+  };
+}
+
+export function restrictFeaturedServiceToExport(
+  home: HomePage | null,
+  exportedServiceSlugs: unknown,
+): HomePage | null {
+  if (!home?.featuredService) {
+    return home;
+  }
+
+  const publicSlugs = normalizeServiceSlugs(exportedServiceSlugs);
+  return publicSlugs.includes(home.featuredService.slug)
+    ? home
+    : { ...home, featuredService: null };
+}
+
+export function resolveHomePublicationState(
+  home: HomePage | null,
+  settings: PublicSiteSettings | null,
+): HomePublicationState {
+  const hasContactChannel = Boolean(
+    settings?.contactEmail || settings?.linkedInUrl,
+  );
+  const isReady = Boolean(home && hasContactChannel);
+
+  return {
+    heroTitle: home?.heroTitle ?? HOME_HERO_TITLE_FALLBACK,
+    isReady,
+    shouldIndex: isReady,
   };
 }
 
