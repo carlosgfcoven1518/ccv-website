@@ -7,7 +7,7 @@ import { structure } from './structure';
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? 'project-id-pending';
 const dataset = process.env.SANITY_STUDIO_DATASET ?? 'production';
-const singletonTypes = new Set(['siteSettings']);
+const singletonTypes = new Set(['homePage', 'siteSettings']);
 
 export default defineConfig({
   name: 'ccv',
@@ -24,7 +24,7 @@ export default defineConfig({
         ({ templateId }) => !singletonTypes.has(templateId),
       ),
     actions: (previousActions, { schemaType }) =>
-      schemaType === 'siteSettings'
+      singletonTypes.has(schemaType)
         ? previousActions.filter(
             ({ action }) => action !== 'delete' && action !== 'duplicate',
           )

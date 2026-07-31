@@ -1,0 +1,18 @@
+.list,
+.simpleList,
+.inverseList {
+  padding-inline-start: var(--space-6);
+}
+
+.listItem {
+  padding-inline-start: var(--space-2);
+}
+
+.listItem::marker,
+.simpleList li::marker {
+  color: var(--color-accent-active);
+}
+
+.inverseList li::marker {
+  color: var(--color-accent);
+}

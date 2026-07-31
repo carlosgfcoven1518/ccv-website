@@ -127,3 +127,150 @@ export interface SiteSettings {
   legalName?: string;
   locale: 'es-MX';
 }
+
+export type ServiceAvailabilityStatus = 'active' | 'retired';
+
+export interface TitledDescription {
+  _key?: string;
+  title: string;
+  description: string;
+}
+
+export interface ServiceAudience {
+  _key?: string;
+  name: string;
+  description: string;
+}
+
+export interface ServiceStage extends TitledDescription {
+  outcome?: string;
+}
+
+export interface ServiceDeliverable extends TitledDescription {
+  format?: string;
+  notes?: string;
+}
+
+export interface PublicEvidenceItem {
+  _key?: string;
+  title: string;
+  statement: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
+}
+
+export interface CommercialServiceSummary {
+  _id: string;
+  title: string;
+  slug: string;
+  cardSummary: string;
+  audiences: Array<Pick<ServiceAudience, '_key' | 'name'>>;
+  heroImage?: SanityImage;
+  heroImageAlt?: string;
+}
+
+export interface CommercialService extends CommercialServiceSummary {
+  subtitle?: string;
+  intro: string;
+  problemStatement: string;
+  audiences: ServiceAudience[];
+  contextSymptoms: string[];
+  proposal: string;
+  expectedBenefits: TitledDescription[];
+  methodology: string;
+  stages: ServiceStage[];
+  deliverables: ServiceDeliverable[];
+  evidenceItems: PublicEvidenceItem[];
+  clarifications: string[];
+  contactInstruction?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  noindex: boolean;
+  availabilityStatus: 'active';
+}
+
+export interface HomeSectionContent {
+  heading: string;
+  intro: string;
+}
+
+export interface HomeDecisionContext extends HomeSectionContent {
+  eyebrow?: string;
+  points: TitledDescription[];
+}
+
+export interface HomeEcosystem extends HomeSectionContent {
+  dimensions: TitledDescription[];
+  image?: SanityImage;
+  imageAlt?: string;
+}
+
+export interface HomeOperatingModel extends HomeSectionContent {
+  stages: TitledDescription[];
+  scopeNote?: string;
+}
+
+export interface HomeEvidence extends HomeSectionContent {
+  items: PublicEvidenceItem[];
+}
+
+export interface HomeLeadershipProfile {
+  name: string;
+  role?: string;
+  bio: string;
+}
+
+export interface HomeAboutCcv {
+  heading: string;
+  description: string;
+  leadershipProfile?: HomeLeadershipProfile;
+  image?: SanityImage;
+  imageAlt?: string;
+}
+
+export interface HomeSpecialization {
+  heading: string;
+  text: string;
+  contexts: TitledDescription[];
+}
+
+export interface HomeAnalysisIntro extends HomeSectionContent {
+  linkLabel: string;
+}
+
+export interface HomeContactIntro {
+  heading: string;
+  instruction: string;
+}
+
+export interface HomePage {
+  _id: 'homePage';
+  heroTitle: string;
+  heroSubtitle: string;
+  heroImage?: SanityImage;
+  heroImageAlt?: string;
+  decisionContext: HomeDecisionContext;
+  ecosystem: HomeEcosystem;
+  featuredService: CommercialServiceSummary | null;
+  operatingModel: HomeOperatingModel;
+  evidence: HomeEvidence | null;
+  aboutCcv: HomeAboutCcv;
+  specialization: HomeSpecialization;
+  analysisIntro: HomeAnalysisIntro;
+  contactIntro: HomeContactIntro;
+}
+
+export interface ServicePageMetadata {
+  service: {
+    title: string;
+    cardSummary: string;
+    seoTitle?: string;
+    seoDescription?: string;
+    noindex: boolean;
+    heroImage?: SanityImage;
+  };
+  settings: Pick<
+    SiteSettings,
+    'siteName' | 'siteUrl' | 'defaultSocialImage'
+  > | null;
+}

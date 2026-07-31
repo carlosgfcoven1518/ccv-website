@@ -1,24 +1,27 @@
 # CCV — Manual del modelo editorial de Sanity
 
 **Versión:** 1.0
-**Estado:** base técnica de la Fase 3
+**Estado:** base técnica ampliada en la Fase 4A
 **Ámbito:** Sanity Studio, Content Lake y capa mínima de lectura para la web
 
 ## 1. Propósito
 
 Este documento define el contrato editorial de CCV en Sanity. Su objetivo es
-que una persona no técnica pueda preparar, revisar y publicar artículos sin
-convertir el Studio en un constructor visual de páginas.
+que una persona no técnica pueda preparar, revisar y publicar artículos y
+Servicios, además de administrar el contenido estructurado de la Página de
+inicio, sin convertir el Studio en un constructor visual de páginas.
 
-Esta fase no conecta un proyecto real, no carga contenido, no integra las rutas
-de Análisis con el diseño público y no configura despliegue, webhooks, SEO
-avanzado ni tracking.
+La conexión local puede apuntar a un proyecto real mediante archivos ignorados,
+pero la implementación no carga contenido ni configura despliegue, webhooks,
+SEO avanzado o tracking. Las rutas de Análisis siguen fuera de la integración
+visual.
 
 ## 2. Decisiones canónicas
 
-- Los tipos de documento son `article`, `author`, `category` y
-  `siteSettings`.
-- `siteSettings` usa el ID fijo `siteSettings` y se presenta como singleton.
+- Los tipos de documento son `article`, `commercialOffer`, `author`, `category`,
+  `homePage` y `siteSettings`.
+- `homePage` y `siteSettings` usan IDs fijos equivalentes a su tipo y se
+  presentan como singletons.
 - La solicitud de Fase 3 actualiza tres nombres del BUILD_SPEC:
   `coverImage` sustituye a `heroImage`, `updatedAt` sustituye a
   `updatedAtEditorial` y los campos SEO del artículo son planos y se agrupan
@@ -28,7 +31,11 @@ avanzado ni tracking.
 - `featured` en el artículo es la única fuente de selección de destacados. No
   se duplica con una segunda lista en `siteSettings`.
 - No se crearon documentos iniciales ni fixtures dentro de Content Lake.
-- La interfaz pública no consume estas queries todavía.
+- `commercialOffer` usa borrador/publicado nativo y únicamente
+  `availabilityStatus` (`active` o `retired`); no reutiliza el workflow interno
+  de Article.
+- La Home pública todavía no consume su query. La ruta técnica de Servicios sí
+  usa la capa pública durante el build.
 
 ## 3. Estructura editorial
 
@@ -123,6 +130,55 @@ El Studio:
 - no puede impedir por sí solo que una integración externa con permisos de
   escritura cree otro documento del mismo tipo.
 
+### 3.5 Página de inicio
+
+`homePage` es un singleton con ID fijo `homePage`. Sus campos siguen el orden
+semántico aprobado, pero no permiten reordenar secciones ni elegir componentes,
+columnas, colores o bloques arbitrarios:
+
+- Hero: `heroTitle`, `heroSubtitle`, imagen opcional y alt condicionado;
+- Contexto de decisión: heading, introducción y dos a cuatro puntos;
+- Ecosistema e integración: heading, introducción, tres a cinco dimensiones e
+  imagen opcional;
+- una referencia opcional `featuredService` a `commercialOffer`;
+- Modelo de trabajo: heading, introducción, tres a cinco etapas y nota opcional;
+- Evidencia y resultados como objeto opcional que se invalida si no contiene
+  evidencia pública;
+- CCV y experiencia, Especialización, introducción de Análisis e introducción de
+  Contacto como objetos estructurados.
+
+`heroTitle` es texto plano obligatorio. Su valor inicial y fallback técnico es
+“Ecosistemas de marketing para crecimiento comercial.”. Los campos con
+longitudes editoriales recomendadas muestran advertencias; los máximos que
+protegen layout o integridad son errores.
+
+El singleton se abre directamente desde la estructura y no aparece en el menú
+global de creación. Las acciones de eliminar y duplicar se ocultan igual que en
+Configuración del sitio. Esto protege el uso normal de Studio, aunque una
+integración externa con escritura todavía podría crear documentos inválidos.
+
+### 3.6 Servicio
+
+El tipo técnico `commercialOffer` se presenta como **Servicio**. La versión V1
+incluye:
+
+- identificación: nombre interno, título público, slug y notas internas;
+- contenido comercial: subtítulo, resumen para tarjetas, introducción, problema,
+  audiencias, síntomas, propuesta, beneficios y aclaraciones;
+- metodología: resumen y entre dos y seis etapas;
+- entre uno y ocho entregables estructurados;
+- hasta seis evidencias públicas con fuente opcional y nota interna de
+  verificación;
+- imagen principal y texto alternativo condicionado;
+- instrucción opcional de contacto;
+- SEO opcional con fallback desde título y resumen;
+- `noindex` y `availabilityStatus` (`active` o `retired`).
+
+No incorpora `editorialStatus`, fechas manuales, relaciones con otros contenidos,
+imagen social independiente, canonical externo, HTML libre, constructor visual,
+duplicación personalizada ni infraestructura de redirecciones. Las notas y el
+nombre interno nunca forman parte de las proyecciones públicas.
+
 ## 4. Portable Text controlado
 
 `blockContent` permite únicamente:
@@ -172,8 +228,13 @@ La navegación editorial contiene:
   - Metodología
   - Perspectiva
   - Caso
+- Servicios
+  - Todos los servicios
+  - Publicados activos
+  - Retirados
 - Autores
 - Categorías
+- Página de inicio
 - Configuración del sitio
 
 Los filtros no ofrecen botones de creación cuando el contexto no puede asignar
@@ -246,6 +307,8 @@ La carpeta `apps/web/lib/sanity/` contiene:
 - `queries.ts`: queries GROQ centralizadas;
 - `types.ts`: contrato TypeScript de las proyecciones;
 - `image.ts`: constructor oficial de URLs de imágenes;
+- `normalizers.ts`: validación y normalización de resultados desconocidos;
+- `read.ts`: funciones de lectura seguras para Home y Servicios;
 - `index.ts`: API pública del módulo.
 
 Queries disponibles:
@@ -257,6 +320,10 @@ Queries disponibles:
 - categorías;
 - autores;
 - configuración global.
+- Página de inicio con Servicio destacado válido o `null`;
+- slugs de Servicios publicados y activos;
+- Servicio publicado y activo por slug;
+- metadata necesaria para la página de Servicio.
 
 Las proyecciones públicas excluyen `internalNotes`, notas internas de fuentes,
 `editorialStatus`, `focusQuery`, correo del autor y credenciales. Esos campos
@@ -268,12 +335,37 @@ existe project ID. Si se configura un token privado, `client.ts` usa
 `server-only` y desactiva CDN. Ningún token se incluye en las queries, tipos ni
 archivos públicos.
 
-Las rutas `/analisis/` y `/analisis/[slug]/` no importan esta capa durante la
-Fase 3.
+Las proyecciones de Servicio excluyen nombre interno, notas internas y notas de
+verificación. Los normalizadores rechazan slugs inválidos, servicios retirados y
+documentos incompletos incluso si una escritura externa hubiera omitido las
+validaciones de Studio.
 
-## 10. Generación estática futura
+Las rutas `/analisis/` y `/analisis/[slug]/` no cambian en la Fase 4A.
 
-La web conserva `output: 'export'`. En una fase posterior:
+## 10. Generación estática
+
+La web conserva `output: 'export'` y `trailingSlash: true`. Para Servicios:
+
+1. `generateStaticParams()` ejecuta la query de slugs publicados y activos
+   durante el build.
+2. Cada slug válido genera `/servicios/[slug]/index.html`.
+3. La página vuelve a validar el documento por slug y responde con `notFound()`
+   cuando no cumple el contrato público.
+4. Metadata usa los fallbacks `seoTitle → title` y
+   `seoDescription → cardSummary`, canonical interno y Open Graph básico.
+5. Un Servicio nuevo, actualizado, retirado o con slug modificado requiere un
+   nuevo build y export.
+6. Sin configuración o sin Servicios, Next 16 exige al menos un parámetro para
+   compilar una ruta dinámica con `output: 'export'`. Se genera `_template`, un
+   slug técnico prohibido por el schema que responde `notFound()` y nunca
+   representa un Servicio ni contenido editorial.
+
+No existe una página `/servicios/`; se reserva para cuando haya al menos dos
+Servicios permanentes publicados. La plantilla actual es deliberadamente
+técnica y reutiliza componentes del Design System sin fijar el diseño comercial
+definitivo.
+
+Para Análisis, en una fase posterior:
 
 1. `generateStaticParams()` ejecutará `publishedArticleSlugsQuery` durante el
    build.
@@ -302,7 +394,6 @@ hosting estático de cPanel.
 
 ## 12. Límites y pendientes manuales
 
-- Conectar el project ID y dataset reales.
 - Decidir si el dataset será público o privado.
 - Configurar CORS cuando exista el origen definitivo del Studio/web.
 - Crear manualmente las categorías aprobadas.
@@ -314,18 +405,27 @@ hosting estático de cPanel.
   Una escritura externa deberá aplicar la misma regla.
 - Cambiar un slug publicado muestra una advertencia, pero la estrategia futura
   de redirecciones pertenece a una fase posterior.
+- Definir caso por caso si una URL retirada se conserva, responde 404/410 o se
+  redirige; la Fase 4A no genera Servicios retirados como rutas activas.
+- Completar y publicar manualmente Página de inicio y Servicios reales después
+  de revisión editorial. La implementación no crea documentos.
 - La publicación automática, webhooks y despliegue quedan fuera de alcance.
 
 ## 13. Criterios de aceptación de esta base
 
-- [ ] Los cuatro documentos y tres objetos de esquema son válidos.
+- [ ] Los seis documentos y tres objetos de esquema son válidos.
 - [ ] Los campos obligatorios muestran mensajes claros en español.
 - [ ] Portable Text solo ofrece el conjunto aprobado.
-- [ ] `siteSettings` aparece como singleton y no puede duplicarse desde Studio.
+- [ ] `homePage` y `siteSettings` aparecen como singletons y no pueden
+      duplicarse desde Studio.
 - [ ] La estructura separa borradores, publicados, destacados y tipos.
 - [ ] La web compila sin project ID ni token.
 - [ ] El Studio genera un bundle local sin credenciales reales.
 - [ ] Las queries usan perspectiva publicada y están centralizadas.
+- [ ] Solo Servicios publicados, activos y con slug válido generan rutas.
+- [ ] La proyección pública omite campos y notas internas.
+- [ ] `/servicios/` no existe y `/servicios/[slug]/` conserva exportación
+      estática.
 - [ ] No hay tokens, IDs reales ni contenido ficticio en Git.
 - [ ] `/analisis/` y `/analisis/[slug]/` permanecen sin regresiones.
 - [ ] ESLint, TypeScript, Prettier, build web y validación de Studio terminan

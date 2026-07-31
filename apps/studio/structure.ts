@@ -22,6 +22,18 @@ function filteredArticleList(
   return params ? list.params(params) : list;
 }
 
+function filteredServiceList(
+  S: StructureBuilder,
+  title: string,
+  filter: string,
+) {
+  return S.documentList()
+    .title(title)
+    .schemaType('commercialOffer')
+    .filter(filter)
+    .initialValueTemplates([]);
+}
+
 export const structure: StructureResolver = (S) =>
   S.list()
     .title('Contenido editorial')
@@ -75,9 +87,47 @@ export const structure: StructureResolver = (S) =>
               ),
             ]),
         ),
+      S.listItem()
+        .title('Servicios')
+        .child(
+          S.list()
+            .title('Servicios')
+            .items([
+              S.documentTypeListItem('commercialOffer').title(
+                'Todos los servicios',
+              ),
+              S.listItem()
+                .title('Publicados activos')
+                .child(
+                  filteredServiceList(
+                    S,
+                    'Publicados activos',
+                    '_type == "commercialOffer" && !(_id in path("drafts.**")) && availabilityStatus == "active"',
+                  ),
+                ),
+              S.listItem()
+                .title('Retirados')
+                .child(
+                  filteredServiceList(
+                    S,
+                    'Servicios retirados',
+                    '_type == "commercialOffer" && availabilityStatus == "retired"',
+                  ),
+                ),
+            ]),
+        ),
       S.documentTypeListItem('author').title('Autores'),
       S.documentTypeListItem('category').title('Categorías'),
       S.divider(),
+      S.listItem()
+        .title('Página de inicio')
+        .id('homePage')
+        .child(
+          S.document()
+            .schemaType('homePage')
+            .documentId('homePage')
+            .title('Página de inicio'),
+        ),
       S.listItem()
         .title('Configuración del sitio')
         .id('siteSettings')

@@ -45,6 +45,7 @@ dataset es privado. Nunca debe usar el prefijo `NEXT_PUBLIC_`.
 ```bash
 npm run lint
 npm run typecheck
+npm run test:data --workspace @ccv/web
 npm run format:check
 npm run build
 npm run schema:validate --workspace @ccv/studio
@@ -58,7 +59,13 @@ en `docs/SANITY_EDITORIAL_MODEL_CCV_v1.0.md`.
 
 ## Alcance actual
 
-La Fase 3 incorpora la base editorial de Sanity y una capa de lectura todavía
-desconectada de las rutas públicas. La Home final, el diseño de Análisis, el
-contenido real, la automatización de publicación y el despliegue pertenecen a
-fases posteriores.
+La Fase 4A incorpora los modelos estructurados de Página de inicio y Servicios,
+las proyecciones públicas seguras y la ruta estática
+`/servicios/[slug]/`. La Home pública conserva su placeholder técnico y todavía
+no existe un índice `/servicios/`.
+
+Cada publicación, retiro o cambio de slug en Sanity requiere un nuevo build para
+regenerar el export estático. Solo los Servicios publicados, activos y con slug
+válido generan rutas. El diseño final de la Home y de las páginas comerciales,
+el contenido real, la automatización de publicación y el despliegue pertenecen
+a fases posteriores.
