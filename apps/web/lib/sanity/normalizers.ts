@@ -25,7 +25,7 @@ import type {
 } from './types';
 
 export const HOME_HERO_TITLE_FALLBACK =
-  'Ecosistemas de marketing para crecimiento comercial.';
+  'Ecosistemas integrados de marketing para adquisición multicanal.';
 
 export const EMPTY_SERVICE_EXPORT_SLUG = '_template';
 

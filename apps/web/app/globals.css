@@ -29,10 +29,12 @@
   --border-subtle: var(--color-line);
   --border-strong: var(--color-line-strong);
 
-  /* Local fonts use safe fallbacks until approved WOFF2 files are installed. */
-  --font-display: 'Syne', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  /* Versioned local fonts with the approved system fallbacks. */
+  --font-display:
+    var(--font-syne), 'Syne', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
   --font-body:
-    'Outfit', 'Avenir Next', Avenir, 'Helvetica Neue', Arial, sans-serif;
+    var(--font-outfit), 'Outfit', 'Avenir Next', Avenir, 'Helvetica Neue',
+    Arial, sans-serif;
 
   /* Fluid type scale */
   --text-xs: clamp(0.75rem, 0.72rem + 0.12vw, 0.8125rem);
