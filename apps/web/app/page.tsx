@@ -23,12 +23,24 @@ import {
   resolveHomePublicationState,
 } from '@/lib/sanity';
 import type { PublicEvidenceItem, TitledDescription } from '@/lib/sanity';
+import {
+  DIRECTION_SERVICE_SUMMARY,
+  SITE_SETTINGS_FALLBACK,
+} from '@/lib/fallbackContent';
 
 import { HOME_FALLBACK_COPY } from './homeCopy';
 import styles from './page.module.css';
 
 const siteNavigation: readonly NavigationItem[] = [
+  { label: 'Dirección de marketing', href: '/#direccion-marketing' },
+  { label: 'IFNBs y fintech', href: '/#ifnbs-fintech' },
   { label: 'Análisis', href: '/analisis/' },
+  { label: 'CCV', href: '/#ccv' },
+  { label: 'Contacto', href: '/#contacto' },
+];
+
+const footerNavigation: readonly NavigationItem[] = [
+  ...siteNavigation,
   { label: 'Aviso de privacidad', href: '/aviso-de-privacidad/' },
 ];
 
@@ -64,9 +76,10 @@ function resolveRootUrl(siteUrl: string | undefined) {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { home, settings } = await getHomeData();
+  const { home, settings: remoteSettings } = await getHomeData();
+  const settings = remoteSettings ?? SITE_SETTINGS_FALLBACK;
   const publication = resolveHomePublicationState(home, settings);
-  const title = settings?.defaultSeoTitle ?? settings?.siteName ?? 'CCV';
+  const title = settings.defaultSeoTitle ?? settings.siteName ?? 'CCV';
   const description =
     settings?.defaultSeoDescription ?? settings?.siteDescription;
   const canonical = resolveRootUrl(settings?.siteUrl);
@@ -83,7 +96,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     alternates: canonical ? { canonical } : undefined,
     robots: {
-      index: publication.shouldIndex,
+      index: home ? publication.shouldIndex : true,
       follow: true,
     },
     openGraph: {
@@ -202,9 +215,14 @@ function Paragraphs({
 }
 
 export default async function HomePage() {
-  const { home, settings, featuredArticles } = await getHomeData();
+  const {
+    home,
+    settings: remoteSettings,
+    featuredArticles,
+  } = await getHomeData();
+  const settings = remoteSettings ?? SITE_SETTINGS_FALLBACK;
   const publication = resolveHomePublicationState(home, settings);
-  const featuredService = home?.featuredService ?? null;
+  const featuredService = home?.featuredService ?? DIRECTION_SERVICE_SUMMARY;
   const usesFallback = home === null;
 
   const decisionContext = home
@@ -339,6 +357,7 @@ export default async function HomePage() {
         </Section>
 
         <Section
+          id="direccion-marketing"
           tone="light"
           spacing="spacious"
           labelledBy="decision-context-title"
@@ -512,6 +531,7 @@ export default async function HomePage() {
         ) : null}
 
         <Section
+          id="ccv"
           tone="navy"
           spacing="spacious"
           labelledBy="about-ccv-title"
@@ -546,6 +566,7 @@ export default async function HomePage() {
 
         {specialization ? (
           <Section
+            id="ifnbs-fintech"
             tone="light"
             spacing="spacious"
             labelledBy="specialization-title"
@@ -607,6 +628,7 @@ export default async function HomePage() {
         </Section>
 
         <Section
+          id="contacto"
           tone="navy"
           spacing="spacious"
           labelledBy="contact-title"
@@ -657,7 +679,7 @@ export default async function HomePage() {
       </main>
 
       <Footer
-        navigation={siteNavigation}
+        navigation={footerNavigation}
         brandLabel={settings?.siteName ?? 'CCV'}
         description={settings?.siteDescription}
         email={settings?.contactEmail}

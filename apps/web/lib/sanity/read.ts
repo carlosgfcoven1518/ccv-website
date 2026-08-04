@@ -1,5 +1,9 @@
 import 'server-only';
 
+import {
+  DIRECTION_SERVICE_FALLBACK,
+  DIRECTION_SERVICE_METADATA,
+} from '../fallbackContent';
 import { sanityFetch } from './client';
 import {
   isValidServiceSlug,
@@ -70,7 +74,12 @@ export async function getPublishedActiveServiceSlugs(): Promise<string[]> {
     () => sanityFetch<unknown>(publishedActiveServiceSlugsQuery, {}, []),
     [],
   );
-  return normalizeServiceSlugs(result);
+  return Array.from(
+    new Set([
+      ...normalizeServiceSlugs(result),
+      DIRECTION_SERVICE_FALLBACK.slug,
+    ]),
+  );
 }
 
 export async function getPublishedActiveServiceBySlug(
@@ -85,7 +94,12 @@ export async function getPublishedActiveServiceBySlug(
       sanityFetch<unknown>(publishedActiveServiceBySlugQuery, { slug }, null),
     null,
   );
-  return normalizeCommercialService(result);
+  return (
+    normalizeCommercialService(result) ??
+    (slug === DIRECTION_SERVICE_FALLBACK.slug
+      ? DIRECTION_SERVICE_FALLBACK
+      : null)
+  );
 }
 
 export async function getServicePageMetadata(
@@ -99,5 +113,10 @@ export async function getServicePageMetadata(
     () => sanityFetch<unknown>(servicePageMetadataBySlugQuery, { slug }, null),
     null,
   );
-  return normalizeServicePageMetadata(result);
+  return (
+    normalizeServicePageMetadata(result) ??
+    (slug === DIRECTION_SERVICE_FALLBACK.slug
+      ? DIRECTION_SERVICE_METADATA
+      : null)
+  );
 }

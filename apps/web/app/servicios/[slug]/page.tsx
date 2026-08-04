@@ -9,6 +9,11 @@ import { Grid } from '@/components/layout/Grid';
 import { Section } from '@/components/layout/Section';
 import { Stack } from '@/components/layout/Stack';
 import { SkipLink } from '@/components/navigation/SkipLink';
+import { Footer } from '@/components/navigation/Footer';
+import {
+  Navigation,
+  type NavigationItem,
+} from '@/components/navigation/Navigation';
 import { Eyebrow } from '@/components/typography/Eyebrow';
 import { Heading } from '@/components/typography/Heading';
 import { Text } from '@/components/typography/Text';
@@ -27,6 +32,19 @@ import type {
 } from '@/lib/sanity';
 
 import styles from './page.module.css';
+
+const serviceNavigation: readonly NavigationItem[] = [
+  { label: 'Dirección de marketing', href: '/#direccion-marketing' },
+  { label: 'IFNBs y fintech', href: '/#ifnbs-fintech' },
+  { label: 'Análisis', href: '/analisis/' },
+  { label: 'CCV', href: '/#ccv' },
+  { label: 'Contacto', href: '/#contacto' },
+];
+
+const serviceFooterNavigation: readonly NavigationItem[] = [
+  ...serviceNavigation,
+  { label: 'Aviso de privacidad', href: '/aviso-de-privacidad/' },
+];
 
 interface ServicePageProps {
   params: Promise<{ slug: string }>;
@@ -183,6 +201,11 @@ export default async function ServicePage({ params }: ServicePageProps) {
   return (
     <>
       <SkipLink />
+      <Navigation
+        items={serviceNavigation}
+        brandLabel="CCV"
+        currentHref={`/servicios/${slug}/`}
+      />
       <main id="main-content">
         <Section tone="offWhite" spacing="spacious" labelledBy="service-title">
           <Container size="standard">
@@ -370,11 +393,26 @@ export default async function ServicePage({ params }: ServicePageProps) {
                 <Text tone="inverse" measure="article">
                   {service.contactInstruction}
                 </Text>
+                <EditorialLink
+                  href="mailto:carlos@covenpr.com"
+                  variant="inverse"
+                  external
+                  showArrow
+                >
+                  Escribe a Carlos Gallegos
+                </EditorialLink>
               </Stack>
             </Container>
           </Section>
         ) : null}
       </main>
+      <Footer
+        navigation={serviceFooterNavigation}
+        brandLabel="CCV"
+        description="Dirección e integración de marketing para convertir demanda en contratos y valor comercial de largo plazo."
+        email="carlos@covenpr.com"
+        linkedInUrl="https://www.linkedin.com/in/carlosgallegosflores/"
+      />
     </>
   );
 }

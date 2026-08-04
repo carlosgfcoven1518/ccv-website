@@ -1,6 +1,6 @@
 export const HOME_FALLBACK_COPY = {
   hero: {
-    title: 'Ecosistemas integrados de marketing para adquisición multicanal.',
+    title: 'Marketing que produce contratos.',
     intro:
       'Coordinamos investigación, comunicación, medios, marketing digital, reputación y seguimiento comercial bajo una sola dirección. El objetivo es convertir demanda en colocaciones efectivas y medir el valor que cada relación genera durante su vigencia.',
     statement:

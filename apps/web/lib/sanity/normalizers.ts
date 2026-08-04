@@ -24,8 +24,7 @@ import type {
   TitledDescription,
 } from './types';
 
-export const HOME_HERO_TITLE_FALLBACK =
-  'Ecosistemas integrados de marketing para adquisición multicanal.';
+export const HOME_HERO_TITLE_FALLBACK = 'Marketing que produce contratos.';
 
 export const EMPTY_SERVICE_EXPORT_SLUG = '_template';
 

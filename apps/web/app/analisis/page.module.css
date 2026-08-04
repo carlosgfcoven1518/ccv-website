@@ -1,0 +1,7 @@
+.heroCopy {
+  max-width: 70rem;
+}
+
+.heroCopy > :last-child {
+  color: rgb(255 255 255 / 82%);
+}
