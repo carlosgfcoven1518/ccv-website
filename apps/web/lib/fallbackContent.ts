@@ -28,7 +28,7 @@ export const DIRECTION_SERVICE_FALLBACK: CommercialService = {
   cardSummary:
     'Una dirección senior para definir prioridades, coordinar equipos y agencias, controlar la inversión y relacionar la operación de marketing con resultados comerciales.',
   subtitle:
-    'Una sola dirección sobre estrategia, investigación, comunicación, medios, performance, reputación y seguimiento comercial.',
+    'Una sola dirección sobre estrategia, investigación, comunicación, medios, marketing digital, reputación y seguimiento comercial.',
   intro:
     'CCV asume la dirección de marketing de empresas que necesitan criterio senior y capacidad de ejecución, pero no requieren construir de inmediato una estructura interna completa. Definimos prioridades, coordinamos las capacidades necesarias y evaluamos el trabajo por su contribución comercial.',
   problemStatement:
@@ -170,8 +170,8 @@ export const DIRECTION_SERVICE_FALLBACK: CommercialService = {
     'Describe el objetivo comercial, la operación actual y el principal problema que necesitas resolver. Con esa información podremos determinar si una dirección externa es el punto de partida adecuado.',
   seoTitle: 'Dirección externa de marketing',
   seoDescription:
-    'Dirección senior para integrar estrategia, equipos, agencias, medios y performance y conectar marketing con resultados comerciales.',
-  noindex: false,
+    'Dirección senior para integrar estrategia, equipos, agencias y medios, y conectar el marketing digital con resultados comerciales.',
+  noindex: true,
   availabilityStatus: 'active',
 };
 

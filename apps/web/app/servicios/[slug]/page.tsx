@@ -210,7 +210,10 @@ export default async function ServicePage({ params }: ServicePageProps) {
         <Section tone="offWhite" spacing="spacious" labelledBy="service-title">
           <Container size="standard">
             <Grid layout={renderHeroImage ? 'textMedia' : 'equal'} gap="lg">
-              <Stack gap="lg">
+              <Stack
+                gap="lg"
+                className={renderHeroImage ? undefined : styles.heroCopy}
+              >
                 <Eyebrow marker>Servicio</Eyebrow>
                 <Heading id="service-title" as="h1" size="h1" measure="wide">
                   {service.title}

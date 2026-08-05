@@ -1,6 +1,6 @@
 export const HOME_FALLBACK_COPY = {
   hero: {
-    title: 'Marketing que produce contratos.',
+    title: 'Ecosistemas de marketing para crecimiento comercial.',
     intro:
       'Coordinamos investigación, comunicación, medios, marketing digital, reputación y seguimiento comercial bajo una sola dirección. El objetivo es convertir demanda en colocaciones efectivas y medir el valor que cada relación genera durante su vigencia.',
     statement:

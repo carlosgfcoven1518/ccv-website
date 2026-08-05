@@ -24,7 +24,8 @@ import type {
   TitledDescription,
 } from './types';
 
-export const HOME_HERO_TITLE_FALLBACK = 'Marketing que produce contratos.';
+export const HOME_HERO_TITLE_FALLBACK =
+  'Ecosistemas de marketing para crecimiento comercial.';
 
 export const EMPTY_SERVICE_EXPORT_SLUG = '_template';
 

@@ -1,0 +1,24 @@
+.heroCopy {
+  max-width: 72rem;
+}
+
+.heroCopy > :nth-last-child(2) {
+  color: rgb(255 255 255 / 84%);
+}
+
+.heroCopy > :last-child {
+  color: rgb(255 255 255 / 64%);
+}
+
+.notice > * + * {
+  padding-block-start: var(--space-12);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.notice h2 {
+  font-size: clamp(1.75rem, 1.43rem + 1.35vw, 2.75rem);
+}
+
+.contactBlock {
+  padding-block-end: var(--space-8);
+}
